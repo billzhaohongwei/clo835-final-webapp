@@ -2,7 +2,7 @@ name: Deploy to ECR
 # Updated ECR Repo CLO835 Final Project 12/04/2024
 on: 
   push:
-    branches: [ master ]
+    branches: [ Alex ]
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
