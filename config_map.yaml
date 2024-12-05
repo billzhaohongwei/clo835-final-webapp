@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  BACKGROUND_IMAGE_URL: "https://s3.amazonaws.com/clo835-project-bucket-repo/ilovecats.jpg"
+  NAME_HEADER: "Cats"
