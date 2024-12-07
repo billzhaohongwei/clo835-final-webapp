@@ -6,23 +6,47 @@ import argparse
 import boto3
 from botocore.exceptions import NoCredentialsError
 
+DBHOST = os.environ.get("DBHOST") or "localhost"
+DBUSER = os.environ.get("DBUSER") or "root"
+DBPWD = os.environ.get("DBPWD") or "password"
+DATABASE = os.environ.get("DATABASE") or "employees"
+COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
+DBPORT = int(os.environ.get("DBPORT"))
+# Specify the background image:
+BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") or "Background image location not passed"
+
 def download_image():
-    s3_bucket = os.getenv("S3_BUCKET")
-    s3_image = os.getenv("S3_IMAGE")
-    file_name = os.path.basename(s3_image)
-    local_file_path = f"/app/static/{file_name}"  # Use the same file name locally
-
-    # Initialize S3 client
-    s3 = boto3.client(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        aws_session_token=os.getenv("AWS_SESSION_TOKEN"),
-    )
-
+    # Get the S3 URL from the environment variable or a default value
+    global BACKGROUND_IMAGE_URL
+    
+    # Ensure BACKGROUND_IMAGE_URL is a valid URL
+    if BACKGROUND_IMAGE_URL == "Background image location not passed":
+        print("No background image URL provided.")
+        return
+    
+    # Parse the S3 URL to extract bucket name and object key
     try:
-        s3.download_file(s3_bucket, s3_image, local_file_path)
+        # Parse the BACKGROUND_IMAGE_URL to extract bucket name and object key
+        s3_path = BACKGROUND_IMAGE_URL.replace("https://", "").split("/", 1)
+        s3_bucket = s3_path[0].split(".")[0]  # Extract bucket name
+        s3_object_key = s3_path[1]           # Extract object key
+        file_name = os.path.basename(s3_object_key)
+        local_file_path = f"/app/static/{file_name}"  # Save the file with same name locally
+
+        print(f"Bucket: {s3_bucket}, Key: {s3_object_key}, Local Path: {local_file_path}")
+
+        # Initialize S3 client
+        s3 = boto3.client("s3")
+
+        # Download the file
+        s3.download_file(s3_bucket, s3_object_key, local_file_path)
         print("Image downloaded successfully!")
+
+        # Update the global variable to point to the local path
+        BACKGROUND_IMAGE_URL = f"/static/{file_name}"
+    except IndexError as e:
+        print(f"Error parsing BACKGROUND_IMAGE_URL: {BACKGROUND_IMAGE_URL}")
+        print(e)
     except NoCredentialsError:
         print("Credentials not available")
     except Exception as e:
@@ -32,16 +56,6 @@ def download_image():
 download_image()
 
 app = Flask(__name__)
-
-
-DBHOST = os.environ.get("DBHOST") or "localhost"
-DBUSER = os.environ.get("DBUSER") or "root"
-DBPWD = os.environ.get("DBPWD") or "password"
-DATABASE = os.environ.get("DATABASE") or "employees"
-COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
-DBPORT = int(os.environ.get("DBPORT"))
-# Specify the background image:
-BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") or "https://clo835-final-group9-background-bucket.s3.us-east-1.amazonaws.com/background.jpg"
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
@@ -71,16 +85,14 @@ SUPPORTED_COLORS = ",".join(color_codes.keys())
 # Generate a random color
 COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lime"])
 
-
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template('addemp.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
-
+    return render_template('addemp.html', background_image_url=BACKGROUND_IMAGE_URL)
 
 @app.route("/about", methods=['GET', 'POST'])
 def about():
-    return render_template('about.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
-
+    # Use the global BACKGROUND_IMAGE_URL for the background image
+    return render_template('about.html', background_image_url=BACKGROUND_IMAGE_URL)
 
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
@@ -102,12 +114,15 @@ def AddEmp():
         cursor.close()
 
     print("All modifications done...")
-    return render_template('addempoutput.html', name=emp_name, color=color_codes[COLOR])
+    
+    # Use the global BACKGROUND_IMAGE_URL for the background image
+    return render_template('addempoutput.html', background_image_url=BACKGROUND_IMAGE_URL, name=emp_name, color="lime")
 
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
-    return render_template("getemp.html", color=color_codes[COLOR])
+    # Use the global BACKGROUND_IMAGE_URL for the background image
+    return render_template('getemp.html', background_image_url=BACKGROUND_IMAGE_URL, color="lime")
 
 
 @app.route("/fetchdata", methods=['GET', 'POST'])
@@ -122,7 +137,7 @@ def FetchData():
         cursor.execute(select_sql, (emp_id,))
         result = cursor.fetchone()
 
-        # Add No Employee found form
+        # Populate the output dictionary with the retrieved data
         output["emp_id"] = result[0]
         output["first_name"] = result[1]
         output["last_name"] = result[2]
@@ -134,18 +149,11 @@ def FetchData():
 
     finally:
         cursor.close()
-
-    return render_template("getempoutput.html", id=output["emp_id"], fname=output["first_name"],
+    
+    # Use the global BACKGROUND_IMAGE_URL for the background image
+    return render_template("getempoutput.html", background_image_url=BACKGROUND_IMAGE_URL, id=output["emp_id"], fname=output["first_name"],
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
                            color=color_codes[COLOR])
-
-
-# New Route to Handle Background Image URL from Environment Variable
-@app.route("/index")
-def index():
-    image_url = os.getenv("BACKGROUND_IMAGE_URL")
-    print(f"Background image URL: {image_url}")  # Add log
-    return render_template("index.html", image_url=image_url)
 
 
 if __name__ == '__main__':

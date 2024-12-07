@@ -12,7 +12,6 @@ RUN pip install -r requirements.txt
 # Create static folder for background image
 RUN mkdir -p /app/static
 
-
 EXPOSE 81
 ENTRYPOINT [ "python3" ]
 CMD [ "app.py" ]

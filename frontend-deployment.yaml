@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend    # name of deployment in namespace
+  name: frontend
   labels:
     app: employees
     app.kubernetes.io/name: employees
     app.kubernetes.io/component: frontend
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: employees
-  replicas: 1
   template:
     metadata:
       labels:
@@ -18,9 +18,10 @@ spec:
         app.kubernetes.io/name: employees
         app.kubernetes.io/component: frontend
     spec:
+      serviceAccountName: clo835-group9  # Place this under template.spec
       containers:
       - name: webapp
-        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.5
+        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.3
         resources:
           requests:
             cpu: 100m
@@ -41,22 +42,17 @@ spec:
             secretKeyRef:
               name: credentials
               key: session_token
-        - name: S3_BUCKET
+        - name: BACKGROUND_IMAGE_URL
           valueFrom:
             configMapKeyRef:
               name: s3-config
-              key: S3_BUCKET
-        - name: S3_IMAGE
-          valueFrom:
-            configMapKeyRef:
-              name: s3-config
-              key: S3_IMAGE
+              key: BACKGROUND_IMAGE_URL
         - name: GET_HOSTS_FROM
           value: dns
         - name: DBPORT
           value: "3306"  # Port to MySQL DB
         - name: DBHOST
-          value: "mysql"  # name of MySQL service
+          value: "mysql"  # Name of MySQL service
         - name: DBUSER
           valueFrom:
             secretKeyRef:
@@ -66,7 +62,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: credentials
-              key: DBPWD   # root password
+              key: DBPWD   # Root password
         - name: APP_COLOR
           value: "blue"
         ports:

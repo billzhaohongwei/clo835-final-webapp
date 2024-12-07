@@ -3,5 +3,4 @@ kind: ConfigMap
 metadata:
   name: s3-config
 data:
-  S3_BUCKET: clo835-final-group9-background-bucket
-  S3_IMAGE: background2.jpg
+  BACKGROUND_IMAGE_URL: https://clo835-final-group9-background-bucket.s3.us-east-1.amazonaws.com/background3.jpg

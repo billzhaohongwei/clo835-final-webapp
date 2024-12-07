@@ -8,7 +8,11 @@
 
 		<h1 style="color: DodgerBlue">Employee Information</h1>
 
-		<body style="background: {{ color }};">
+		<body style="background-image: url('{{ background_image_url }}'); 
+                     background-size: cover; 
+                     background-repeat: no-repeat; 
+                     background-attachment: fixed; 
+                     color: {{ color }};">
 
 			<form action="/fetchdata" autocomplete="on" method="POST">
 
