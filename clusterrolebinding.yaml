@@ -4,7 +4,7 @@ metadata:
   name: clo835-binding
 subjects:
   - kind: ServiceAccount
-    name: clo835-group9
+    name: clo835
     namespace: final
 roleRef:
   kind: ClusterRole
