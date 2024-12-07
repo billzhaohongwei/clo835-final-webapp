@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql  # unique name of deployment in its namespace
+  labels:
+    app: mysql
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+        app.kubernetes.io/name: mysql
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+      - name: mysql
+        image: 158522655848.dkr.ecr.us-east-1.amazonaws.com/clo835-final-mysql-repo:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: MYSQL_PASSWORD
+        #args:
+          #- --bind_ip
+          #- 0.0.0.0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage  # Name of the volume to mount
+          mountPath: /var/lib/mysql  # Path inside the container where the PVC will be mounted
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
