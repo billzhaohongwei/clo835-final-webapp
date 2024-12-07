@@ -44,14 +44,27 @@ jobs:
         # Create a custom Docker bridge network
         docker network create --driver bridge my_custom_bridge
 
+        # Debug: Print environment variables
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"
+        echo "ECR_REPOSITORY_MYSQL=${ECR_REPOSITORY_MYSQL}"
+        echo "IMAGE_TAG=${IMAGE_TAG}"
+
         # Run MySQL container in the custom network
-        docker run -d --name mysql-db --network my_custom_bridge -e MYSQL_ROOT_PASSWORD=pw $ECR_REGISTRY/${ECR_REPOSITORY_MYSQL}:${IMAGE_TAG}
+        docker run -d --name mysql-db --network my_custom_bridge \
+          -e MYSQL_ROOT_PASSWORD=pw \
+          ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY_MYSQL}:${IMAGE_TAG}
 
         # Wait for the MySQL container to become ready
         echo "Waiting for MySQL to become ready..."
         for i in {1..10}; do
-          docker exec mysql-db mysqladmin ping -ppw && break || sleep 5;
-        done
+          if docker exec mysql-db mysqladmin ping -ppw --silent; then
+            echo "MySQL is ready!"
+            break
+          else
+            echo "MySQL not ready. Retrying in 5 seconds..."
+            sleep 5
+          fi
+        done || (echo "MySQL failed to start" && docker logs mysql-db && exit 1)
 
         # Test the database connection
         docker exec mysql-db mysql -uroot -ppw -e "SHOW DATABASES;"
