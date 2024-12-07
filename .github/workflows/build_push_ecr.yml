@@ -8,16 +8,16 @@ on:
 jobs:
   
   build:
-    
-    name: Build Image
+    name: Build and Deploy
     runs-on: ubuntu-latest
 
-   
     steps:
 
+    # Check out code
     - name: Check out code
       uses: actions/checkout@v2
 
+    # Login to Amazon ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -52,3 +52,16 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
         # Push the MySQL Database image to Amazon ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
+
+    # Upload background image to S3 bucket
+    - name: Upload Background Image to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_REGION: us-east-1
+      run: |
+        # Install AWS CLI
+        sudo apt-get update && sudo apt-get install -y awscli
+        # Upload the image to the S3 bucket
+        aws s3 cp ilovecats.jpg s3://clo835-project-bucket-repo/ilovecats.jpg
