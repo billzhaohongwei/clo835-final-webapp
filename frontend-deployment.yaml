@@ -20,13 +20,28 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.2
+        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.5
         #
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: access_key_id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: secret_access_key
+        - name: AWS_SESSION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: session_token
         - name: S3_BUCKET
           value: "clo835-final-group9-background-bucket"
         - name: S3_IMAGE
