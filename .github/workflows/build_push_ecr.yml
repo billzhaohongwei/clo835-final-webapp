@@ -28,7 +28,7 @@ jobs:
         AWS_REGION: us-east-1
 
     # Build, tag, and push the MySQL Database image
-    - name: Build, tag, and push MySQL Database image to Amazon ECR
+    - name: Build, test, tag, and push MySQL Database image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
