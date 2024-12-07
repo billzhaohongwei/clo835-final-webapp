@@ -48,6 +48,28 @@ jobs:
         DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
         echo "DBHOST=$DBHOST" >> $GITHUB_ENV    
         
+    
+    # Build, tag, and push the MySQL Database image
+    - name: Build, tag, and push MySQL Database image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
+        IMAGE_TAG: latest
+      run: |
+        ls -ltra
+        # Build the Docker image for MySQL Database
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
+        
+        #Unit Test
+        docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=pw ${{ steps.login-ecr.outputs.registry }}/clo835-final-mysql-repo:latest
+        docker ps 
+        sleep 15
+        docker exec -it mysql-container mysql -u root -p -e "SHOW DATABASES;"
+      
+        # Push the MySQL Database image to Amazon ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG    
+        
+        
     # Build, tag, and push the Web Application image
     - name: Build, tag, and push Web Application image to Amazon ECR
       env:
@@ -82,23 +104,4 @@ jobs:
         # Push the Web Application image to Amazon ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG
 
-    # Build, tag, and push the MySQL Database image
-    - name: Build, tag, and push MySQL Database image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
-        IMAGE_TAG: latest
-      run: |
-        ls -ltra
-        # Build the Docker image for MySQL Database
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
-        
-        #Unit Test
-        docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=pw ${{ steps.login-ecr.outputs.registry }}/clo835-final-mysql-repo:latest
-        docker ps 
-        sleep 15
-        docker exec -it mysql-container mysql -u root -p -e "SHOW DATABASES;"
-      
-        # Push the MySQL Database image to Amazon ECR
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
 
