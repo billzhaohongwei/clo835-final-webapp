@@ -41,15 +41,9 @@ jobs:
         # Upload the image to the S3 bucket
         aws s3 cp ilovecats.jpg s3://clo835-project-bucket-repo/ilovecats.jpg
         
-    # Get the DB Host Dynamically
-    - name: Get DBHOST dynamically
-      id: get_dbhost
-      run: |
-        DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
-        echo "DBHOST=$DBHOST" >> $GITHUB_ENV    
         
     
-    # Build, tag, and push the MySQL Database image
+     # Build, tag, and push the MySQL Database image
     - name: Build, tag, and push MySQL Database image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -70,6 +64,14 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG    
         
         
+    # Get the DB Host Dynamically
+    - name: Get DBHOST dynamically
+      id: get_dbhost
+      run: |
+        DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
+        echo "DBHOST=$DBHOST" >> $GITHUB_ENV    
+        
+    
     # Build, tag, and push the Web Application image
     - name: Build, tag, and push Web Application image to Amazon ECR
       env:
