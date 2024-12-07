@@ -16,7 +16,7 @@ DBPORT = int(os.environ.get("DBPORT"))
 
 #ENV varaibles to grab image and show my name
 BACKGROUND_IMAGE = os.environ.get("BACKGROUND_IMAGE") or "Invalid image"
-MY_NAME = os.environ.get('NAME') or "Alex Zhou"
+MY_NAME = os.environ.get('NAME') or "Group9"
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
