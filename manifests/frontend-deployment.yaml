@@ -38,21 +38,6 @@ spec:
           value: "clo835-project-bucket-repo"
         - name: S3_IMAGE
           value: "background.jpg"
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: secret-credentials
-              key: AWS_ACCESS_KEY_ID
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: secret-credentials
-              key: AWS_SECRET_ACCESS_KEY
-        - name: AWS_SESSION_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: secret-credentials
-              key: AWS_SESSION_TOKEN
         - name: GET_HOSTS_FROM
           value: dns
         - name: DBPORT
@@ -66,4 +51,4 @@ spec:
         - name: APP_COLOR
           value: "blue"
         ports:
-        - containerPort: 8080
+        - containerPort: 81
