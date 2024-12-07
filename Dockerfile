@@ -13,6 +13,6 @@ RUN pip install -r requirements.txt
 RUN mkdir -p /app/static
 
 
-EXPOSE 8080
+EXPOSE 81
 ENTRYPOINT [ "python3" ]
 CMD [ "app.py" ]

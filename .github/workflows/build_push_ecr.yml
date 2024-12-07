@@ -64,4 +64,6 @@ jobs:
         # Install AWS CLI
         sudo apt-get update && sudo apt-get install -y awscli
         # Upload the image to the S3 bucket
-        aws s3 cp background.jpg s3://clo835-final-group9-background-bucket/
+        aws s3 cp backgrounds/background1.jpg s3://clo835-final-group9-background-bucket/
+        aws s3 cp backgrounds/background2.png s3://clo835-final-group9-background-bucket/
+        aws s3 cp backgrounds/background3.jpg s3://clo835-final-group9-background-bucket/

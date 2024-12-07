@@ -9,7 +9,8 @@ from botocore.exceptions import NoCredentialsError
 def download_image():
     s3_bucket = os.getenv("S3_BUCKET")
     s3_image = os.getenv("S3_IMAGE")
-    local_file_path = "/app/static/background.jpg"
+    file_name = os.path.basename(s3_image)
+    local_file_path = f"/app/static/{file_name}"  # Use the same file name locally
 
     # Initialize S3 client
     s3 = boto3.client(
@@ -170,4 +171,4 @@ if __name__ == '__main__':
         print("Color not supported. Received '" + COLOR + "' expected one of " + SUPPORTED_COLORS)
         exit(1)
 
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=81, debug=True)

@@ -21,7 +21,6 @@ spec:
       containers:
       - name: webapp
         image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.5
-        #
         resources:
           requests:
             cpu: 100m
@@ -30,17 +29,17 @@ spec:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
-              name: aws-credentials
+              name: credentials
               key: access_key_id
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: aws-credentials
+              name: credentials
               key: secret_access_key
         - name: AWS_SESSION_TOKEN
           valueFrom:
             secretKeyRef:
-              name: aws-credentials
+              name: credentials
               key: session_token
         - name: S3_BUCKET
           valueFrom:
@@ -59,10 +58,16 @@ spec:
         - name: DBHOST
           value: "mysql"  # name of MySQL service
         - name: DBUSER
-          value: "root" 
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: DBUSER 
         - name: DBPWD
-          value: "pw"  # root password
+          valueFrom:
+            secretKeyRef:
+              name: credentials
+              key: DBPWD   # root password
         - name: APP_COLOR
           value: "blue"
         ports:
-        - containerPort: 8080
+        - containerPort: 81

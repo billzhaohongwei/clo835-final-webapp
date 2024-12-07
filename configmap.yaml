@@ -4,4 +4,4 @@ metadata:
   name: s3-config
 data:
   S3_BUCKET: clo835-final-group9-background-bucket
-  S3_IMAGE: background.jpg
+  S3_IMAGE: background2.jpg
