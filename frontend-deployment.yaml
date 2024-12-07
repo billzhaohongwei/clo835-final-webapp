@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend    # name of deployment in namespace
+  labels:
+    app: employees
+    app.kubernetes.io/name: employees
+    app.kubernetes.io/component: frontend
+spec:
+  selector:
+    matchLabels:
+      app: employees
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: employees
+        app.kubernetes.io/name: employees
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+      - name: webapp
+        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.2
+        #
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: DBPORT
+          value: "3306"  # Port to MySQL DB
+        - name: DBHOST
+          value: "mysql"  # name of MySQL service
+        - name: DBUSER
+          value: "root" 
+        - name: DBPWD
+          value: "pw"  # root password
+        - name: APP_COLOR
+          value: "blue"
+        ports:
+        - containerPort: 8080

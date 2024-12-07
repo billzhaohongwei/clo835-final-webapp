@@ -13,6 +13,8 @@ DBPWD = os.environ.get("DBPWD") or "password"
 DATABASE = os.environ.get("DATABASE") or "employees"
 COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
 DBPORT = int(os.environ.get("DBPORT"))
+# Specify the background image:
+BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") or "https://clo835-final-group9-background-bucket.s3.us-east-1.amazonaws.com/background.jpg"
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
@@ -45,12 +47,12 @@ COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lim
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template('addemp.html', color=color_codes[COLOR])
+    return render_template('addemp.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
 
 
 @app.route("/about", methods=['GET', 'POST'])
 def about():
-    return render_template('about.html', color=color_codes[COLOR])
+    return render_template('about.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
 
 
 @app.route("/addemp", methods=['POST'])
@@ -142,4 +144,4 @@ if __name__ == '__main__':
         print("Color not supported. Received '" + COLOR + "' expected one of " + SUPPORTED_COLORS)
         exit(1)
 
-    app.run(host='0.0.0.0', port=8081, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
