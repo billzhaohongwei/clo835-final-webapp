@@ -4,3 +4,4 @@ metadata:
   name: app-config
 data:
   background-image-url: "https://clo835-project-bucket-repo.s3.us-east-1.amazonaws.com/background.jpg"
+  g_name: "Group-9: Alex & Hongwei"

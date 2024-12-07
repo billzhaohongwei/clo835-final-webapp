@@ -39,8 +39,13 @@ DBPWD = os.environ.get("DBPWD") or "password"
 DATABASE = os.environ.get("DATABASE") or "employees"
 COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
 DBPORT = int(os.environ.get("DBPORT"))
+
+
 # Specify the background image:
 BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") 
+
+#Get the name for header
+group_name = os.environ.get('g_name') or "Group-9: Alex & Hongwei"
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
@@ -73,12 +78,12 @@ COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lim
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template('addemp.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template('addemp.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL, g_name=group_name)
 
 
 @app.route("/about", methods=['GET', 'POST'])
 def about():
-    return render_template('about.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template('about.html', color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL, g_name=group_name)
 
 
 @app.route("/addemp", methods=['POST'])
@@ -101,12 +106,12 @@ def AddEmp():
         cursor.close()
 
     print("All modifications done...")
-    return render_template('addempoutput.html', name=emp_name, color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template('addempoutput.html', name=emp_name, color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL, g_name=group_name)
 
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
-    return render_template("getemp.html", color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template("getemp.html", color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL, g_name=group_name)
 
 
 @app.route("/fetchdata", methods=['GET', 'POST'])
@@ -136,7 +141,7 @@ def FetchData():
 
     return render_template("getempoutput.html", id=output["emp_id"], fname=output["first_name"],
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
-                           color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
+                           color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL, g_name=group_name)
 
 if __name__ == '__main__':
 
@@ -161,4 +166,4 @@ if __name__ == '__main__':
         print("Color not supported. Received '" + COLOR + "' expected one of " + SUPPORTED_COLORS)
         exit(1)
 
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=81, debug=True)
