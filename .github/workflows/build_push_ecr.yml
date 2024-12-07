@@ -58,7 +58,7 @@ jobs:
         docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=pw ${{ steps.login-ecr.outputs.registry }}/clo835-final-mysql-repo:latest
         docker ps 
         sleep 15
-        docker exec -it mysql-container mysql -u root -p -e "SHOW DATABASES;"
+        docker exec mysql-container mysql -u root -ppw -e "SHOW DATABASES;" || exit 1
       
         # Push the MySQL Database image to Amazon ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG    
