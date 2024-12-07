@@ -14,9 +14,6 @@ DATABASE = os.environ.get("DATABASE") or "employees"
 COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
 DBPORT = int(os.environ.get("DBPORT"))
 
-#ENV varaibles to grab image and show my name
-BACKGROUND_IMAGE = os.environ.get("BACKGROUND_IMAGE") or "Invalid image"
-MY_NAME = os.environ.get('NAME') or "Group9"
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
@@ -47,6 +44,11 @@ SUPPORTED_COLORS = ",".join(color_codes.keys())
 # Generate a random color
 COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lime"])
 
+#ENV varaibles to grab image and show my name
+BACKGROUND_IMAGE = os.environ.get("BACKGROUND_IMAGE") or "Invalid image"
+MY_NAME = os.environ.get('NAME') or "Group9"
+
+
 @app.route("/", methods=['GET', 'POST'])
 def home():
     image_url = url_for('static', filename='ilovecats.jpg')
@@ -54,7 +56,7 @@ def home():
     
 #Download image from S3 bucket    
 @app.route("/download", methods=['GET','POST'])
-def download_image(image_url):
+def download_image_from_s3(image_url):
    try:
          bucket = image_url.split('//')[1].split('.')[0]
          object_name = '/'.join(image_url.split('//')[1].split('/')[1:])
@@ -139,8 +141,10 @@ def FetchData():
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"], color=color_codes[COLOR], my_name = MY_NAME)
 
 if __name__ == '__main__':
+    
     #Download the image from s3
     download_image(BACKGROUND_IMAGE)
+    
     # Check for Command Line Parameters for color
     parser = argparse.ArgumentParser()
     parser.add_argument('--color', required=False)
