@@ -68,7 +68,7 @@ jobs:
     - name: Get DBHOST dynamically
       id: get_dbhost
       run: |
-        DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
+        DBHOST=mysql-container
         echo "DBHOST=$DBHOST" >> $GITHUB_ENV
         echo "DBHOST=$DBHOST"
         
