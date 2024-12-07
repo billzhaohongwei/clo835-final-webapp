@@ -8,16 +8,16 @@ on:
 jobs:
   
   build:
-    name: Build and Deploy
+    
+    name: Build Image
     runs-on: ubuntu-latest
 
+   
     steps:
 
-    # Check out code
     - name: Check out code
       uses: actions/checkout@v2
 
-    # Login to Amazon ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
@@ -27,9 +27,8 @@ jobs:
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         AWS_REGION: us-east-1
 
-    # Build, tag, and push the Web Application image
-    # Build and test the MySQL Database image
-    - name: Build MySQL Database image
+    # Build, tag, and push the MySQL Database image
+    - name: Build, tag, and push MySQL Database image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
@@ -38,51 +37,16 @@ jobs:
         ls -ltra
         # Build the Docker image for MySQL Database
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
+        
+        #Unit Test
+        docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=pw ${{ steps.login-ecr.outputs.registry }}/clo835-final-mysql-repo:latest
+        docker ps 
+        sleep 15
+        docker exec mysql-container mysql -u root -ppw -e "SHOW DATABASES;" || exit 1
       
-    - name: Test MySQL Database image
-      run: |
-        # Create a custom Docker bridge network
-        docker network create --driver bridge my_custom_bridge
-
-        # Debug: Print environment variables
-        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"
-        echo "ECR_REPOSITORY_MYSQL=${ECR_REPOSITORY_MYSQL}"
-        echo "IMAGE_TAG=${IMAGE_TAG}"
-
-        # Run MySQL container in the custom network
-        docker run -d --name mysql-db --network my_custom_bridge \
-          -e MYSQL_ROOT_PASSWORD=pw \
-          ${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY_MYSQL}:${IMAGE_TAG}
-
-        # Wait for the MySQL container to become ready
-        echo "Waiting for MySQL to become ready..."
-        for i in {1..10}; do
-          if docker exec mysql-db mysqladmin ping -ppw --silent; then
-            echo "MySQL is ready!"
-            break
-          else
-            echo "MySQL not ready. Retrying in 5 seconds..."
-            sleep 5
-          fi
-        done || (echo "MySQL failed to start" && docker logs mysql-db && exit 1)
-
-        # Test the database connection
-        docker exec mysql-db mysql -uroot -ppw -e "SHOW DATABASES;"
-
-        # Stop and clean up
-        docker stop mysql-db
-        docker rm mysql-db
-        docker network rm my_custom_bridge
-
-    - name: Push MySQL Database image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
-        IMAGE_TAG: latest
-      run: |
         # Push the MySQL Database image to Amazon ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
-
+        
     # Build, tag, and push the Web Application image
     - name: Build, tag, and push Web Application image to Amazon ECR
       env:
