@@ -43,9 +43,15 @@ spec:
               name: aws-credentials
               key: session_token
         - name: S3_BUCKET
-          value: "clo835-final-group9-background-bucket"
+          valueFrom:
+            configMapKeyRef:
+              name: s3-config
+              key: S3_BUCKET
         - name: S3_IMAGE
-          value: "background.jpg"
+          valueFrom:
+            configMapKeyRef:
+              name: s3-config
+              key: S3_IMAGE
         - name: GET_HOSTS_FROM
           value: dns
         - name: DBPORT
