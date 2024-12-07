@@ -40,7 +40,7 @@ DATABASE = os.environ.get("DATABASE") or "employees"
 COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
 DBPORT = int(os.environ.get("DBPORT"))
 # Specify the background image:
-BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") or "https://clo835-final-group9-background-bucket.s3.us-east-1.amazonaws.com/background.jpg"
+BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") 
 
 # Create a connection to the MySQL database
 db_conn = connections.Connection(
@@ -101,12 +101,12 @@ def AddEmp():
         cursor.close()
 
     print("All modifications done...")
-    return render_template('addempoutput.html', name=emp_name, color=color_codes[COLOR])
+    return render_template('addempoutput.html', name=emp_name, color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
 
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
-    return render_template("getemp.html", color=color_codes[COLOR])
+    return render_template("getemp.html", color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
 
 
 @app.route("/fetchdata", methods=['GET', 'POST'])
@@ -136,16 +136,7 @@ def FetchData():
 
     return render_template("getempoutput.html", id=output["emp_id"], fname=output["first_name"],
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
-                           color=color_codes[COLOR])
-
-
-# New Route to Handle Background Image URL from Environment Variable
-@app.route("/index")
-def index():
-    image_url = os.getenv("BACKGROUND_IMAGE_URL")
-    print(f"Background image URL: {image_url}")  # Add log
-    return render_template("index.html", image_url=image_url)
-
+                           color=color_codes[COLOR], background_image_url=BACKGROUND_IMAGE_URL)
 
 if __name__ == '__main__':
 
