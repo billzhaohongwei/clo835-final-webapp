@@ -28,6 +28,49 @@ jobs:
         AWS_REGION: us-east-1
 
     # Build, tag, and push the Web Application image
+    # Build and test the MySQL Database image
+    - name: Build MySQL Database image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
+        IMAGE_TAG: latest
+      run: |
+        ls -ltra
+        # Build the Docker image for MySQL Database
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
+      
+    - name: Test MySQL Database image
+      run: |
+        # Create a custom Docker bridge network
+        docker network create --driver bridge my_custom_bridge
+
+        # Run MySQL container in the custom network
+        docker run -d --name mysql-db --network my_custom_bridge -e MYSQL_ROOT_PASSWORD=pw $ECR_REGISTRY/${ECR_REPOSITORY_MYSQL}:${IMAGE_TAG}
+
+        # Wait for the MySQL container to become ready
+        echo "Waiting for MySQL to become ready..."
+        for i in {1..10}; do
+          docker exec mysql-db mysqladmin ping -ppw && break || sleep 5;
+        done
+
+        # Test the database connection
+        docker exec mysql-db mysql -uroot -ppw -e "SHOW DATABASES;"
+
+        # Stop and clean up
+        docker stop mysql-db
+        docker rm mysql-db
+        docker network rm my_custom_bridge
+
+    - name: Push MySQL Database image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
+        IMAGE_TAG: latest
+      run: |
+        # Push the MySQL Database image to Amazon ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
+
+    # Build, tag, and push the Web Application image
     - name: Build, tag, and push Web Application image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -39,31 +82,3 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG -f Dockerfile .
         # Push the Web Application image to Amazon ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG
-
-    # Build, tag, and push the MySQL Database image
-    - name: Build, tag, and push MySQL Database image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
-        IMAGE_TAG: latest
-      run: |
-        ls -ltra
-        # Build the Docker image for MySQL Database
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
-        # Push the MySQL Database image to Amazon ECR
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
-
-    # Upload background image to S3 bucket
-    - name: Upload Background Image to S3
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-        AWS_REGION: us-east-1
-      run: |
-        # Install AWS CLI
-        sudo apt-get update && sudo apt-get install -y awscli
-        # Upload the image to the S3 bucket
-        aws s3 cp backgrounds/background1.jpg s3://clo835-final-group9-background-bucket/
-        aws s3 cp backgrounds/background2.png s3://clo835-final-group9-background-bucket/
-        aws s3 cp backgrounds/background3.jpg s3://clo835-final-group9-background-bucket/
