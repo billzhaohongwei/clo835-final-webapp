@@ -14,6 +14,7 @@ COLOR_FROM_ENV = os.environ.get('APP_COLOR') or "lime"
 DBPORT = int(os.environ.get("DBPORT"))
 # Specify the background image:
 BACKGROUND_IMAGE_URL = os.getenv("BACKGROUND_IMAGE_URL") or "Background image location not passed"
+DEVELOPER_NAMES = os.getenv("DEVELOPER_NAMES") or "Developer names not passed"
 
 def download_image():
     # Get the S3 URL from the environment variable or a default value
@@ -87,12 +88,12 @@ COLOR = random.choice(["red", "green", "blue", "blue2", "darkblue", "pink", "lim
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template('addemp.html', background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template('addemp.html', background_image_url=BACKGROUND_IMAGE_URL, developer_names=DEVELOPER_NAMES)
 
 @app.route("/about", methods=['GET', 'POST'])
 def about():
     # Use the global BACKGROUND_IMAGE_URL for the background image
-    return render_template('about.html', background_image_url=BACKGROUND_IMAGE_URL)
+    return render_template('about.html', background_image_url=BACKGROUND_IMAGE_URL, developer_names=DEVELOPER_NAMES)
 
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
@@ -116,13 +117,13 @@ def AddEmp():
     print("All modifications done...")
     
     # Use the global BACKGROUND_IMAGE_URL for the background image
-    return render_template('addempoutput.html', background_image_url=BACKGROUND_IMAGE_URL, name=emp_name, color="lime")
+    return render_template('addempoutput.html', background_image_url=BACKGROUND_IMAGE_URL, developer_names=DEVELOPER_NAMES, name=emp_name, color="lime")
 
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
     # Use the global BACKGROUND_IMAGE_URL for the background image
-    return render_template('getemp.html', background_image_url=BACKGROUND_IMAGE_URL, color="lime")
+    return render_template('getemp.html', background_image_url=BACKGROUND_IMAGE_URL, developer_names=DEVELOPER_NAMES, color="lime")
 
 
 @app.route("/fetchdata", methods=['GET', 'POST'])
@@ -151,7 +152,7 @@ def FetchData():
         cursor.close()
     
     # Use the global BACKGROUND_IMAGE_URL for the background image
-    return render_template("getempoutput.html", background_image_url=BACKGROUND_IMAGE_URL, id=output["emp_id"], fname=output["first_name"],
+    return render_template("getempoutput.html", background_image_url=BACKGROUND_IMAGE_URL, developer_names=DEVELOPER_NAMES, id=output["emp_id"], fname=output["first_name"],
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
                            color=color_codes[COLOR])
 
