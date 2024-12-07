@@ -27,6 +27,10 @@ spec:
             cpu: 100m
             memory: 100Mi
         env:
+        - name: S3_BUCKET
+          value: "clo835-final-group9-background-bucket"
+        - name: S3_IMAGE
+          value: "background.jpg"
         - name: GET_HOSTS_FROM
           value: dns
         - name: DBPORT

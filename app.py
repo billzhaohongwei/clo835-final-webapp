@@ -3,9 +3,35 @@ from flask import Flask, render_template, request
 from pymysql import connections
 import random
 import argparse
+import boto3
+from botocore.exceptions import NoCredentialsError
 
+def download_image():
+    s3_bucket = os.getenv("S3_BUCKET")
+    s3_image = os.getenv("S3_IMAGE")
+    local_file_path = "/app/static/background.jpg"
+
+    # Initialize S3 client
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        aws_session_token=os.getenv("AWS_SESSION_TOKEN"),
+    )
+
+    try:
+        s3.download_file(s3_bucket, s3_image, local_file_path)
+        print("Image downloaded successfully!")
+    except NoCredentialsError:
+        print("Credentials not available")
+    except Exception as e:
+        print(f"Error downloading image: {e}")
+
+# Call the function when the app starts
+download_image()
 
 app = Flask(__name__)
+
 
 DBHOST = os.environ.get("DBHOST") or "localhost"
 DBUSER = os.environ.get("DBUSER") or "root"

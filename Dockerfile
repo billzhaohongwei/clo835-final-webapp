@@ -8,6 +8,11 @@ RUN set -xe \
     && apt-get install -y mysql-client 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# Create static folder for background image
+RUN mkdir -p /app/static
+
+
 EXPOSE 8080
 ENTRYPOINT [ "python3" ]
 CMD [ "app.py" ]
