@@ -27,31 +27,6 @@ jobs:
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         AWS_REGION: us-east-1
 
-    # Build, tag, and push the Web Application image
-    - name: Build, tag, and push Web Application image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY_WEBAPP: clo835-final-webapp-repo
-        IMAGE_TAG: latest
-      run: |
-        ls -ltra
-        # Build the Docker image for the Web Application
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG -f Dockerfile .
-        # Push the Web Application image to Amazon ECR
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG
-
-    # Build, tag, and push the MySQL Database image
-    - name: Build, tag, and push MySQL Database image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
-        IMAGE_TAG: latest
-      run: |
-        ls -ltra
-        # Build the Docker image for MySQL Database
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
-        # Push the MySQL Database image to Amazon ECR
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
 
     # Upload background image to S3 bucket
     - name: Upload Background Image to S3
@@ -65,3 +40,65 @@ jobs:
         sudo apt-get update && sudo apt-get install -y awscli
         # Upload the image to the S3 bucket
         aws s3 cp ilovecats.jpg s3://clo835-project-bucket-repo/ilovecats.jpg
+        
+    # Get the DB Host Dynamically
+    - name: Get DBHOST dynamically
+        id: get_dbhost
+        run: |
+          DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
+          echo "DBHOST=$DBHOST" >> $GITHUB_ENV    
+        
+    # Build, tag, and push the Web Application image
+    - name: Build, tag, and push Web Application image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY_WEBAPP: clo835-final-webapp-repo
+        IMAGE_TAG: latest
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        DBPORT: 3306
+        DBUSER: root 
+        DATABASE: employees 
+        DBPWD: pw
+        APP_COLOR1: blue 
+        APP_COLOR2: pink
+        APP_COLOR3: lime 
+        BACKGROUND_IMAGE: https://clo835-project-bucket-repo.s3.us-east-1.amazonaws.com/ilovecats.jpg
+
+      run: |
+        ls -ltra
+        # Build the Docker image for the Web Application
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG -f Dockerfile .
+        
+        #Unit Test
+        docker run -d -p 81:81 --name blue --network my_custom_bridge -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN -e DBHOST=$DBHOST -e DBPORT=$DBPORT  -e DBUSER=$DBUSER -e DBPWD=$DBPWD  -e APP_COLOR=$APP_COLOR1  -e BACKGROUND_IMAGE=$BACKGROUND_IMAGE
+        docker ps
+        
+        #Curl the web app to ensure it's responding correctly
+        curl -f http://localhost:81 || exit 1
+
+        
+        # Push the Web Application image to Amazon ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_WEBAPP:$IMAGE_TAG
+
+    # Build, tag, and push the MySQL Database image
+    - name: Build, tag, and push MySQL Database image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY_MYSQL: clo835-final-mysql-repo
+        IMAGE_TAG: latest
+      run: |
+        ls -ltra
+        # Build the Docker image for MySQL Database
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG -f Dockerfile_mysql .
+        
+        #Unit Test
+        docker run -d --name mysql-container -e MYSQL_ROOT_PASSWORD=pw ${{ steps.login-ecr.outputs.registry }}/clo835-final-mysql-repo:latest
+        docker ps 
+        sleep 15
+        docker exec -it mysql-container mysql -u root -p -e "SHOW DATABASES;"
+      
+        # Push the MySQL Database image to Amazon ECR
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_MYSQL:$IMAGE_TAG
+
