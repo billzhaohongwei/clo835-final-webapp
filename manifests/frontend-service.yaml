@@ -1,16 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: frontend-loadbalancer
   labels:
     app.kubernetes.io/name: employees
     app.kubernetes.io/component: frontend
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
-  - port: 80          # Service port
-    targetPort: 8080  # Container port
-    nodePort: 30000   # NodePort
+    - port: 81          # The external port exposed by the LoadBalancer
+      targetPort: 81    # The port inside the container
   selector:
     app.kubernetes.io/name: employees
     app.kubernetes.io/component: frontend
