@@ -21,27 +21,12 @@ spec:
       serviceAccountName: clo835-group9  # Place this under template.spec
       containers:
       - name: webapp
-        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.3
+        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:latest
         resources:
           requests:
             cpu: 100m
             memory: 100Mi
         env:
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: credentials
-              key: access_key_id
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: credentials
-              key: secret_access_key
-        - name: AWS_SESSION_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: credentials
-              key: session_token
         - name: BACKGROUND_IMAGE_URL
           valueFrom:
             configMapKeyRef:
