@@ -69,7 +69,8 @@ jobs:
       id: get_dbhost
       run: |
         DBHOST=$(docker inspect --format '{{ .NetworkSettings.Networks.my_custom_bridge.IPAddress }}' mysql-container)
-        echo "DBHOST=$DBHOST" >> $GITHUB_ENV    
+        echo "DBHOST=$DBHOST" >> $GITHUB_ENV
+        echo "DBHOST=$DBHOST"
         
     
     # Build, tag, and push the Web Application image
