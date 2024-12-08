@@ -50,7 +50,7 @@ Steps:
    
    - docker run -d -p 8080:81 --name color --network my_custom_bridge -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN -e BACKGROUND_IMAGE_URL=$BACKGROUND_IMAGE_URL -e DBHOST=$DBHOST -e DBPORT=$DBPORT -e DBUSER=$DBUSER -e DBPWD=$DBPWD web-app
 
-### Now you can view the webpage via IP of host and port 8080  
+#### Now you can view the webpage via IP of host and port 8080  
 
 8. Enable the AWS EBS CSI (Container Storage Interface) driver in EKS cluster to use Amazon Elastic Block Store (EBS) volumes as Persistent Volume Claims.
    
@@ -80,7 +80,7 @@ Steps:
 
    - kubectl get all -n final -o wide
 
-## Access the app via loadbalancer's URL through port 81
+#### Access the app via loadbalancer's URL through port 81
 
 15. Delete EKS Cluster
    
