@@ -21,7 +21,7 @@ spec:
       serviceAccountName: clo835  # Place this under template.spec
       containers:
       - name: webapp
-        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:v0.4
+        image: 444868690040.dkr.ecr.us-east-1.amazonaws.com/clo835-final-webapp-repo:latest
         resources:
           requests:
             cpu: 100m
